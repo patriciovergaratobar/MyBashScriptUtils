@@ -1,4 +1,4 @@
-# MyBashScriptUtils
+# MyShellScriptTools
 This repository contain bash script utils for separate occasions.
 
 ### Script
