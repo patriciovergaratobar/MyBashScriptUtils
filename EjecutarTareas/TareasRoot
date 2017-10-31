@@ -1,0 +1,3 @@
+echo "Ejemplo ;) tarea a ejecutar"
+echo "Ejemplo de otra tarea"
+sudo apt-get update

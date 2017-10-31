@@ -1,0 +1,69 @@
+#! /bin/sh
+#================================================
+# Script de inicio para una APP java como demonio
+#================================================
+#Este script se encarga de iniciar, detener y
+#reiniciar el demonio de la aplicacion java.
+#===============================================
+NAME=<NOMBRE APP>
+DESC="Demonio $NAME"
+PIDFILE="/run/${NAME}.pid"
+LOGFILE="/var/log/${NAME}.log"
+HOMEAPP="/<RUTA DE LA APP>/"
+DEMON="<NOMBRE DEL JAR>"
+PACKAGE="<PAKAGE APP EJ:com.pvergara.gpio.Monitor>"
+START_OPTS="/usr/bin/java -cp .:${DEMON} ${PACKAGE}"
+STOP_OPTS="${PIDFILE}"
+
+#Funcion que inicia el servicio
+iniciar(){
+	echo "$START_OPTS"
+	echo $(pwd)
+	cd $HOMEAPP
+	CLASSPATH="."
+	for file in $HOMEAPP/lib/*.jar
+	do
+        	CLASSPATH="$CLASSPATH:$file"
+	done
+	java -cp $CLASSPATH $PACKAGE >> $LOGFILE & echo $! > $PIDFILE
+
+}
+#Funcion que detiene el servicio
+detener(){
+	if [ -f $PIDFILE ]; then
+                echo -n "Deteniendo "
+                PID=$( cat $PIDFILE);
+                kill $PID;
+                echo "$NAME."
+                rm -f $PIDFILE
+        else
+                echo "$NAME no se encuentra en ejecución..."
+        fi
+}
+
+case "$1" in
+    start)
+	iniciar
+        echo "Iniciado"
+        ;;
+    stop)
+	detener
+        ;;
+    restart|force-reload)
+        echo "Reiniciando..."
+	if [ -f $PIDFILE ]; then
+                detener
+		iniciar	
+        else
+		iniciar
+        fi
+	echo "Reiniciado"
+        ;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Utilice: $N {start|stop|restart|force-reload}" >&2
+        exit 1
+        ;;
+esac
+exit 0
+
